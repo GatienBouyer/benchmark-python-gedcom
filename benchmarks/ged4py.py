@@ -10,6 +10,7 @@ from CONFIG import GEDCOM_FILE
 start_time = perf_counter()
 
 gedcom = GedcomReader(GEDCOM_FILE)
+assert gedcom.xref0
 
 end_time = perf_counter()
 
@@ -21,14 +22,9 @@ start_time = perf_counter()
 
 
 def nb_gen(indi: Individual) -> int:
-    father = indi.father
-    father_gens = 1 if father is None else 1+nb_gen(father)
-    mother = indi.mother
-    mother_gens = 1 if mother is None else 1+nb_gen(mother)
-    return max(father_gens, mother_gens)
+    return max([1+nb_gen(p) for p in (indi.father, indi.mother) if p] + [1])
 
 
-assert (gedcom.xref0)
 root = cast(Individual, gedcom.read_record(gedcom.xref0["@I1@"][0]))
 number_generations_above_root = nb_gen(root)
 

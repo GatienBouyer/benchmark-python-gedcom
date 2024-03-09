@@ -22,10 +22,7 @@ start_time = perf_counter()
 
 
 def nb_gen(indi: Record | FakeLine) -> int:
-    if not indi:
-        return 1
-    father, mother = families.get_parents(indi.tag)
-    return 1+max(nb_gen(father), nb_gen(mother))
+    return max([1+nb_gen(p) for p in families.get_parents(indi.tag) if p] + [1])
 
 
 number_generations_above_root = nb_gen(gedcom["@I1@"])
@@ -60,8 +57,14 @@ start_time = perf_counter()
 oldest = next(gedcom.get_records("INDI"))
 age_oldest = 0.0
 for individual in gedcom.get_records("INDI"):
-    birth_year = extract_int_year((individual > "BIRT") >= "DATE")
-    death_year = extract_int_year((individual > "DEAT") >= "DATE")
+    birth = individual.get_sub_line("BIRT")
+    death = individual.get_sub_line("DEAT")
+    if not birth or not death:
+        # early check to avoid useless computation
+        continue
+    # TODO extract_year and extract_int_year could be optimized
+    birth_year = extract_int_year(birth.get_sub_line_payload("DATE"))
+    death_year = extract_int_year(death.get_sub_line_payload("DATE"))
     if birth_year is None or death_year is None:
         continue
     age = death_year - birth_year

@@ -21,8 +21,7 @@ start_time = perf_counter()
 
 
 def nb_gen(indi: IndividualElement) -> int:
-    parents = gedcom.get_parents(indi)
-    return max([1+nb_gen(p) for p in parents] + [1])
+    return max([1+nb_gen(p) for p in gedcom.get_parents(indi)] + [1])
 
 
 root = gedcom.get_element_dictionary()["@I1@"]
@@ -63,11 +62,9 @@ age_oldest = 0.0
 for element in gedcom.get_root_child_elements():
     if not isinstance(element, IndividualElement):
         continue
-    birth_date, *_ = element.get_birth_data()
-    death_date, *_ = element.get_death_data()  # TODO use get_death_year
-    birth_year = extract_int_year(birth_date)
-    death_year = extract_int_year(death_date)
-    if birth_year is None or death_year is None:
+    birth_year = element.get_birth_year()
+    death_year = element.get_death_year()
+    if birth_year == -1 or death_year == -1:
         continue
     age = death_year - birth_year
     if age > age_oldest:
@@ -76,5 +73,5 @@ for element in gedcom.get_root_child_elements():
 
 end_time = perf_counter()
 assert (oldest)
-print(f"Oldest person: {oldest.get_name()}    Age: {age_oldest}")
+print(f"Oldest person: {oldest.get_name()}    Age: {age_oldest} (note: BC doesn't work)")
 print(f"Time to traverse ages: {end_time - start_time}")

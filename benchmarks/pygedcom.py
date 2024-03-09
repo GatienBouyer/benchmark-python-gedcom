@@ -1,6 +1,7 @@
 from time import perf_counter
 
 from fastgedcom.helpers import extract_int_year, format_name
+from fastgedcom.parser import guess_encoding
 from pygedcom import GedcomParser  # type: ignore
 from pygedcom.elements.rootElements.individual import (  # type: ignore
     GedcomIndividual
@@ -9,8 +10,10 @@ from pygedcom.elements.rootElements.individual import (  # type: ignore
 from CONFIG import GEDCOM_FILE
 
 start_time = perf_counter()
-
 gedcom = GedcomParser(path=GEDCOM_FILE)
+gedcom._GedcomParser__open = lambda: open( # override to use correct encoding
+    GEDCOM_FILE, "r", encoding=guess_encoding(GEDCOM_FILE)
+).read()
 gedcom.parse()
 
 end_time = perf_counter()
