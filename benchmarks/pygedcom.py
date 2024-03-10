@@ -11,7 +11,7 @@ from CONFIG import GEDCOM_FILE
 
 start_time = perf_counter()
 gedcom = GedcomParser(path=GEDCOM_FILE)
-gedcom._GedcomParser__open = lambda: open( # override to use correct encoding
+gedcom._GedcomParser__open = lambda: open(  # override to use correct encoding
     GEDCOM_FILE, "r", encoding=guess_encoding(GEDCOM_FILE)
 ).read()
 gedcom.parse()

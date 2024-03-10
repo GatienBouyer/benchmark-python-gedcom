@@ -21,11 +21,13 @@ print(f"Time to parse: {end_time - start_time}")
 start_time = perf_counter()
 
 
-def nb_gen(indi: Record | FakeLine) -> int:
+def nb_gen(indi: Record) -> int:
     return max([1+nb_gen(p) for p in families.get_parents(indi.tag) if p] + [1])
 
 
-number_generations_above_root = nb_gen(gedcom["@I1@"])
+root = gedcom["@I1@"]
+assert root
+number_generations_above_root = nb_gen(root)
 
 end_time = perf_counter()
 
